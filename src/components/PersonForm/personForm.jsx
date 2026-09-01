@@ -1,41 +1,15 @@
 import { Component } from "react";
 import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as yup from 'yup';
 
-const personValidate = (values) => {
-    const error = {};
-    if (!values.name) {
-        error.name = "Name is required"
-    }
-    else if (values.name.length < 6) {
-        error.name = "Name should be atleast 6 characters";
-    }
+const personSchema = yup.object().shape({
+    name: yup.string().required("Name is required").min(6, "Name should be atleast 6 characters"),
+    age: yup.number().typeError("Age must be a number").required("Age is required").min(0, "Age should be greater than 0").max(100, "Age should be less than 100"),
+    country: yup.string().required("Country is required"),
+    tech: yup.array().min(1, "Atleast one technology must be selected"),
+    currentStatus: yup.string().required("Current Status is required")
+})
 
-    if (!values.age) {
-        error.age = "Age is required"
-    }
-    else if (isNaN(+values.age)) {
-        error.age = "Age should be a number"
-    }
-    else if (values.age < 0) {
-        error.age = "Age should be greater than 0"
-    }
-    else if (values.age > 100) {
-        error.age = "Age should be less than 100"
-    }
-
-    if (!values.country) {
-        error.country = "Country is required"
-    }
-
-    if (!values.tech || !values.tech.length) {
-        error.tech = "Atleast one technology must be selected";
-    }
-
-    if (!values.currentStatus) {
-        error.currentStatus = "Current Status is required"
-    }
-    return error;
-}
 class PersonForm extends Component {
     state = {
         countries: ['USA', 'Canada', 'UK', 'India', 'Australia', 'Germany'],
@@ -54,7 +28,7 @@ class PersonForm extends Component {
                 tech: person.tech || [],
                 currentStatus: person.currentStatus || ''
             }}
-                validate={personValidate}
+                validationSchema={personSchema}
                 onSubmit={(values) => {
                     this.props.onSubmit(values, index);
                     this.props.history.push('/');
