@@ -1,32 +1,15 @@
 import { Component } from "react";
 import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as yup from 'yup';
 
-const deliveryValidation = (values) => {
-    const error = {};
+const deliveryValidationSchema = yup.object().shape({
+    name: yup.string().required("Name is required").min(5, "Name should be atleast 5 characters"),
+    gender: yup.string().required("Gender is required"),
+    delivery: yup.string().required("Delivery Type is required"),
+    payments: yup.array().min(1, "Atleast one payment method must be selected").max(2, "You can select at most 2 payments"),
+    slot: yup.string().required("Delivery Slot is required")
+});
 
-    if (!values.name)
-        error.name = 'Name is required';
-    else if (values.name.length < 5) {
-        error.name = 'Name must be at least 5 characters';
-    }
-
-    if (!values.gender)
-        error.gender = 'Gender is required';
-
-    if (!values.delivery)
-        error.delivery = 'Delivery Type is required';
-
-    if (values.payments.length === 0) {
-        error.payments = 'Payments are required';
-    }
-    else if (values.payments.length > 2) {
-        error.payments = 'You can select at most 2 payments';
-    }
-
-    if (!values.slot)
-        error.slot = 'Slot is required';
-    return error;
-}
 
 class DeliveryForm extends Component {
     state = {
@@ -52,7 +35,7 @@ class DeliveryForm extends Component {
                 payments: delivery.payments || [],
                 slot: delivery.slot || ''
             }}
-                validate={deliveryValidation}
+                validationSchema={deliveryValidationSchema}
                 onSubmit={(values) => {
                     onSubmit(values, index);
                     this.props.history.push('/');
